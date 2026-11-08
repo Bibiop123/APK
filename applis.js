@@ -12,5 +12,5 @@ window.APPLIS = [
   { nom: 'Boussole', description: 'Se retrouver entre amis en soirée et en festival', depot: null, emoji: '🧭' },
   { nom: 'Ardoise', description: 'Partager les dépenses entre amis', depot: null, emoji: '🧾' },
   { nom: 'Mots fléchés', description: "Petit jeu d'appoint", depot: null, emoji: '✏️' },
-  { nom: 'Calendrier visuel', description: 'Rdv, anniversaires, soirées, concerts', depot: null, emoji: '📅' },
+  { nom: 'Calendrier visuel', description: 'Rdv, anniversaires, soirées, concerts', depot: 'Bibiop123/Calendrier', emoji: '📅' },
 ];
