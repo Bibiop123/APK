@@ -42,7 +42,8 @@ footer{margin-top:30px;color:var(--doux);font-size:13px;text-align:center}
   <footer>Les versions viennent directement des releases GitHub, mises à jour à chaque ouverture.</footer>
 </main>
 <script src="vendor/qrcode.js"></script>
-<script src="applis.js"></script>
+<script>/* toujours la dernière liste d'applis, jamais une copie gardée en cache */
+document.write('<script src="applis.js?v=' + Date.now() + '"><\/script>');</script>
 <script>
 const echapper = (t) => String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const mo = (o) => (o / 1024 / 1024).toFixed(0) + ' Mo';
