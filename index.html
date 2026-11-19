@@ -6,48 +6,131 @@
 <title>Mes applis</title>
 <link rel="icon" href="icones/la-lanterne.png">
 <style>
-:root{--fond:#121214;--carte:#1d1d21;--bord:#34343a;--texte:#ededf0;--doux:#a3a3ad;--accent:#e0a84a}
+/* ---------- Thèmes ---------- */
+:root{
+  --fond:radial-gradient(ellipse at 50% 35%,#1b2550 0%,#0c1029 55%,#05060f 100%);
+  --texte:#eef1ff;--doux:#9aa3c7;--accent:#8fb4ff;--accent-texte:#0b1230;
+  --bulle:rgba(255,255,255,.07);--bulle-bord:rgba(160,185,255,.28);--bulle-ombre:0 0 24px rgba(120,150,255,.18);
+  --ico-fond:#0d1124;--centre:rgba(14,19,45,.82);--centre-bord:rgba(160,185,255,.25);
+  --anneau:rgba(160,185,255,.16);--choisi:0 0 0 2px #8fb4ff,0 0 34px rgba(143,180,255,.55);
+}
+
+/* ---------- Base ---------- */
 *{box-sizing:border-box}
-body{margin:0;background:var(--fond);color:var(--texte);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-main{max-width:900px;margin:0 auto;padding:28px 18px 60px}
-h1{font-size:28px;margin:0 0 4px}
-.sous{color:var(--doux);margin:0 0 26px}
-.grille{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(270px,1fr))}
-.carte{background:var(--carte);border:1px solid var(--bord);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:14px}
-.carte.vide{opacity:.55}
-.tete{display:flex;gap:12px;align-items:center}
-.ico{width:52px;height:52px;border-radius:12px;background:#0d0906;display:flex;align-items:center;justify-content:center;font-size:26px;flex:none;overflow:hidden}
-.ico img{width:52px;height:52px}
-h2{font-size:18px;margin:0}
-.desc{margin:2px 0 0;color:var(--doux);font-size:14px}
-.meta{display:flex;gap:8px;flex-wrap:wrap}
-.pastille{font-size:12px;padding:3px 9px;border-radius:999px;border:1px solid var(--bord);color:var(--doux)}
-.pastille.v{color:var(--accent);border-color:#6b5428}
-.qr{background:#fff;border-radius:12px;padding:10px;align-self:center;width:200px;line-height:0}
-.qr svg,.qr img{width:100%;height:auto}
-.btn{display:block;text-align:center;background:var(--accent);color:#1a1206;font-weight:700;text-decoration:none;padding:12px;border-radius:10px}
-.notes{color:var(--doux);font-size:14px;white-space:pre-wrap;margin:0}
-details summary{cursor:pointer;color:var(--texte);font-size:14px}
-.petit{color:var(--doux);font-size:13px;margin:0}
-.petit a{color:var(--accent)}
-.etat{color:var(--doux);font-size:14px;margin:0}
-footer{margin-top:30px;color:var(--doux);font-size:13px;text-align:center}
+html,body{margin:0;min-height:100%}
+body{background:var(--fond);background-attachment:fixed;color:var(--texte);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;transition:color .3s;overflow-x:hidden}
+main{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:18px 10px 30px}
+h1{font-size:26px;margin:6px 0 2px;letter-spacing:.3px}
+.sous{color:var(--doux);margin:0 0 8px;font-size:14px;text-align:center}
+footer{color:var(--doux);font-size:12px;text-align:center;margin-top:8px;opacity:.8}
+
+
+/* Étoiles */
+.etoiles{position:fixed;inset:0;pointer-events:none;z-index:0}
+.etoiles i{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;opacity:.5;animation:scintille 4s ease-in-out infinite}
+@keyframes scintille{50%{opacity:.08}}
+
+/* ---------- Le cercle ---------- */
+.cercle{position:relative;z-index:1;width:min(94vw,640px)}
+.anneau{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:1.5px dashed var(--anneau);border-radius:50%;pointer-events:none}
+
+.bulle{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:10px;
+  background:var(--bulle);border:1px solid var(--bulle-bord);box-shadow:var(--bulle-ombre);
+  border-radius:999px;padding:7px 16px 7px 7px;cursor:pointer;color:var(--texte);font:inherit;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  transition:box-shadow .25s,background .25s,opacity .25s}
+.bulle .flotte{display:contents}
+.bulle:hover{background:color-mix(in srgb,var(--bulle) 70%,var(--accent) 12%)}
+.bulle.choisie{box-shadow:var(--choisi)}
+.cercle.selection .bulle:not(.choisie){opacity:.62}
+.bulle .ico{width:46px;height:46px;border-radius:50%;background:var(--ico-fond);display:flex;align-items:center;justify-content:center;font-size:24px;flex:none;overflow:hidden}
+.bulle .ico img{width:100%;height:100%;object-fit:cover}
+.bulle .nom{font-weight:600;font-size:15px;max-width:120px;line-height:1.15;text-align:left}
+.bulle .point{width:7px;height:7px;border-radius:50%;background:var(--doux);opacity:.5;flex:none}
+.bulle .point.ok{background:#4fd18b;opacity:1}
+@keyframes flotter{0%,100%{translate:0 0}50%{translate:0 -6px}}
+.bulle{animation:flotter 5s ease-in-out infinite}
+
+/* Petits écrans : logo dans la bulle, nom juste dessous */
+@media (max-width:560px){
+  .bulle{flex-direction:column;gap:5px;padding:7px 7px 10px;border-radius:44px}
+  .bulle .ico{width:52px;height:52px}
+  .bulle .nom{font-size:12px;max-width:78px;text-align:center}
+  .bulle .point{position:absolute;top:6px;right:6px}
+}
+
+/* ---------- Fiche au centre ---------- */
+.centre{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  background:var(--centre);border:1px solid var(--centre-bord);border-radius:26px;
+  padding:16px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 10px 40px rgba(0,0,0,.25)}
+.centre .accueil{color:var(--doux);font-size:14px;line-height:1.45}
+.centre .accueil b{display:block;color:var(--texte);font-size:18px;margin-bottom:4px}
+.centre h2{margin:0;font-size:18px}
+.centre .desc{margin:-4px 0 0;color:var(--doux);font-size:13px}
+.qr{background:#fff;border-radius:14px;padding:8px;line-height:0;width:170px}
+.qr svg{width:100%;height:auto}
+.meta{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.pastille{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--bulle-bord);color:var(--doux)}
+.pastille.v{color:var(--accent);border-color:var(--accent)}
+.btn{display:block;width:100%;text-align:center;background:var(--accent);color:var(--accent-texte);font-weight:700;text-decoration:none;padding:10px;border-radius:12px;font-size:15px}
+.lien{color:var(--accent);font-size:12px}
+.etat{color:var(--doux);font-size:13px;margin:0}
+.apparait{animation:apparait .3s ease}
+@keyframes apparait{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@media (max-width:560px){.qr{width:118px}.centre .desc{display:none}.pastille{font-size:10px;padding:1px 6px}.centre{padding:12px;gap:8px;border-radius:20px}.centre h2{font-size:16px}}
+@media (prefers-reduced-motion:reduce){.bulle,.etoiles i{animation:none}}
 </style>
 </head>
 <body>
+<div class="etoiles" id="etoiles"></div>
 <main>
   <h1>Mes applis</h1>
-  <p class="sous">Scanne un QR code avec ton téléphone pour télécharger la dernière version.</p>
-  <div class="grille" id="grille"></div>
-  <footer>Les versions viennent directement des releases GitHub, mises à jour à chaque ouverture.</footer>
+  <p class="sous">Touche une bulle pour afficher son QR code</p>
+  <div class="cercle" id="cercle">
+    <div class="anneau" id="anneau"></div>
+    <div class="centre" id="centre"></div>
+  </div>
+  <footer>Les versions viennent directement des releases GitHub.</footer>
 </main>
 <script src="vendor/qrcode.js"></script>
 <script>/* toujours la dernière liste d'applis, jamais une copie gardée en cache */
-document.write('<script src="applis.js?v=' + Date.now() + '"><\/script>');</script>
+if (!window.APPLIS) document.write('<script src="applis.js?v=' + Date.now() + '"><\/script>');</script>
 <script>
 const echapper = (t) => String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const mo = (o) => (o / 1024 / 1024).toFixed(0) + ' Mo';
-const date = (iso) => new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+const date = (iso) => new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+const TEINTES = ['#ffb347', '#6fc3ff', '#a78bfa', '#ff7aa8', '#4fd1a5', '#ffd166', '#7aa2ff'];
+
+/* Étoiles */
+(() => {
+  const z = document.getElementById('etoiles');
+  for (let i = 0; i < 110; i++) {
+    const s = document.createElement('i');
+    const t = Math.random() < 0.15 ? 3 : 2;
+    s.style.cssText = `left:${Math.random() * 100}%;top:${Math.random() * 100}%;width:${t}px;height:${t}px;animation-delay:${(Math.random() * 4).toFixed(2)}s;animation-duration:${(3 + Math.random() * 4).toFixed(2)}s`;
+    z.appendChild(s);
+  }
+})();
+
+/* ---------- Données des releases ---------- */
+const versions = {};
+async function chargerVersion(a) {
+  if (!a.depot) return { erreur: "Pas encore d'APK publié" };
+  if (window.APERCU) return window.APERCU[a.depot] || { erreur: 'Aucune release publiée pour l’instant.' };
+  try {
+    const r = await fetch(`https://api.github.com/repos/${a.depot}/releases/latest`, { headers: { Accept: 'application/vnd.github+json' } });
+    if (r.status === 404) return { erreur: 'Aucune release publiée pour l’instant.' };
+    if (!r.ok) return { erreur: 'GitHub ne répond pas (' + r.status + '). Réessaie dans un moment.' };
+    const rel = await r.json();
+    const apk = (rel.assets || []).find((x) => x.name.toLowerCase().endsWith('.apk'));
+    if (!apk) return { erreur: 'La dernière release ne contient pas de fichier .apk.' };
+    return { tag: rel.tag_name, date: rel.published_at, taille: apk.size, lien: apk.browser_download_url };
+  } catch (e) {
+    return { erreur: 'Impossible de joindre GitHub.' };
+  }
+}
 
 function qrSvg(texte) {
   const q = qrcode(0, 'M');
@@ -56,46 +139,80 @@ function qrSvg(texte) {
   return q.createSvgTag({ cellSize: 6, margin: 2, scalable: true });
 }
 
-function tete(a) {
+/* ---------- Construction ---------- */
+const cercle = document.getElementById('cercle');
+const centre = document.getElementById('centre');
+const anneau = document.getElementById('anneau');
+const applis = window.APPLIS || [];
+let choisie = null;
+
+const bulles = applis.map((a, i) => {
+  const b = document.createElement('button');
+  b.className = 'bulle';
+  b.style.setProperty('--teinte', TEINTES[i % TEINTES.length]);
+  b.style.animationDelay = `${-i * 1.1}s`;
   const ico = a.icone ? `<img alt="" src="${echapper(a.icone)}">` : echapper(a.emoji || '📱');
-  return `<div class="tete"><div class="ico">${ico}</div><div><h2>${echapper(a.nom)}</h2><p class="desc">${echapper(a.description)}</p></div></div>`;
+  b.innerHTML = `<span class="ico">${ico}</span><span class="nom">${echapper(a.nom)}</span><span class="point"></span>`;
+  b.setAttribute('aria-label', a.nom);
+  b.addEventListener('click', () => afficher(i));
+  cercle.appendChild(b);
+  versions[i] = chargerVersion(a).then((v) => { if (v.lien) b.querySelector('.point').classList.add('ok'); return v; });
+  return b;
+});
+
+function accueil() {
+  centre.innerHTML = `<div class="accueil apparait"><b>${applis.length} applis</b>Choisis une bulle<br>autour du cercle</div>`;
 }
 
-async function carte(a) {
-  const el = document.createElement('article');
-  el.className = 'carte';
-  if (!a.depot) {
-    el.classList.add('vide');
-    el.innerHTML = tete(a) + `<p class="etat">Pas encore d'APK publié</p>`;
-    return el;
+async function afficher(i) {
+  if (choisie === i) { choisie = null; bulles.forEach((b) => b.classList.remove('choisie')); cercle.classList.remove('selection'); accueil(); return; }
+  choisie = i;
+  bulles.forEach((b, j) => b.classList.toggle('choisie', j === i));
+  cercle.classList.add('selection');
+  const a = applis[i];
+  centre.style.setProperty('--teinte', TEINTES[i % TEINTES.length]);
+  centre.innerHTML = `<h2 class="apparait">${echapper(a.nom)}</h2><p class="etat">Recherche de la dernière version…</p>`;
+  const v = await versions[i];
+  if (choisie !== i) return;
+  if (v.erreur) {
+    centre.innerHTML = `<div class="apparait" style="display:contents"><h2>${echapper(a.nom)}</h2><p class="desc">${echapper(a.description)}</p><p class="etat">${echapper(v.erreur)}</p>` +
+      (a.depot ? `<a class="lien" href="https://github.com/${a.depot}/releases">Voir sur GitHub</a>` : '') + `</div>`;
+  } else {
+    centre.innerHTML = `<h2>${echapper(a.nom)}</h2><p class="desc">${echapper(a.description)}</p>` +
+      `<div class="qr apparait" role="img" aria-label="QR code de téléchargement de ${echapper(a.nom)}">${qrSvg(v.lien)}</div>` +
+      `<div class="meta"><span class="pastille v">${echapper(v.tag)}</span><span class="pastille">${date(v.date)}</span><span class="pastille">${mo(v.taille)}</span></div>` +
+      `<a class="btn" href="${echapper(v.lien)}">Télécharger</a>` +
+      `<a class="lien" href="https://github.com/${a.depot}/releases">Toutes les versions</a>`;
   }
-  el.innerHTML = tete(a) + `<p class="etat">Recherche de la dernière version…</p>`;
-  try {
-    const r = await fetch(`https://api.github.com/repos/${a.depot}/releases/latest`, { headers: { Accept: 'application/vnd.github+json' } });
-    if (r.status === 404) throw new Error('Aucune release publiée pour l’instant.');
-    if (!r.ok) throw new Error('GitHub ne répond pas (' + r.status + '). Réessaie dans un moment.');
-    const rel = await r.json();
-    const apk = (rel.assets || []).find((x) => x.name.toLowerCase().endsWith('.apk'));
-    if (!apk) throw new Error('La dernière release ne contient pas de fichier .apk.');
-    const lien = apk.browser_download_url;
-    el.innerHTML =
-      tete(a) +
-      `<div class="meta"><span class="pastille v">${echapper(rel.tag_name)}</span><span class="pastille">${date(rel.published_at)}</span><span class="pastille">${mo(apk.size)}</span></div>` +
-      `<div class="qr" role="img" aria-label="QR code de téléchargement de ${echapper(a.nom)}">${qrSvg(lien)}</div>` +
-      `<a class="btn" href="${echapper(lien)}">Télécharger</a>` +
-      (rel.body ? `<details><summary>Nouveautés</summary><p class="notes">${echapper(rel.body)}</p></details>` : '') +
-      `<p class="petit"><a href="https://github.com/${a.depot}/releases">Toutes les versions</a></p>`;
-  } catch (e) {
-    el.innerHTML = tete(a) + `<p class="etat">${echapper(e.message)}</p><p class="petit"><a href="https://github.com/${a.depot}/releases">Voir sur GitHub</a></p>`;
-  }
-  return el;
+  placer();
 }
 
-(async () => {
-  const grille = document.getElementById('grille');
-  const cartes = await Promise.all(window.APPLIS.map(carte));
-  cartes.forEach((c) => grille.appendChild(c));
-})();
+/* ---------- Placement en cercle ---------- */
+function placer() {
+  const W = cercle.clientWidth;
+  const etroit = W < 520;
+  const H = Math.round(W * (etroit ? 1.58 : 1.02));
+  cercle.style.height = H + 'px';
+  let bw = 0, bh = 0;
+  bulles.forEach((b) => { bw = Math.max(bw, b.offsetWidth); bh = Math.max(bh, b.offsetHeight); });
+  const rx = W / 2 - bw / 2 - 6;
+  const ry = H / 2 - bh / 2 - 12;
+  const n = bulles.length;
+  bulles.forEach((b, i) => {
+    const ang = -Math.PI / 2 + (i * 2 * Math.PI) / n;
+    b.style.left = W / 2 + rx * Math.cos(ang) + 'px';
+    b.style.top = H / 2 + ry * Math.sin(ang) + 'px';
+  });
+  anneau.style.width = rx * 2 + 'px';
+  anneau.style.height = ry * 2 + 'px';
+  // la fiche du centre prend la place libre à l'intérieur du cercle
+  centre.style.width = Math.min(250, Math.max(150, 2 * rx - bw - 14)) + 'px';
+}
+
+accueil();
+placer();
+window.addEventListener('resize', placer);
+document.fonts && document.fonts.ready.then(placer);
 </script>
 </body>
 </html>
