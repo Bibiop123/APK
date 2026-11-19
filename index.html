@@ -34,7 +34,7 @@ footer{color:var(--doux);font-size:12px;text-align:center;margin-top:8px;opacity
 @keyframes scintille{50%{opacity:.08}}
 
 /* ---------- Le cercle ---------- */
-.cercle{position:relative;z-index:1;width:min(94vw,640px)}
+.cercle{position:relative;z-index:1;width:min(94vw,780px)}
 .anneau{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:1.5px dashed var(--anneau);border-radius:50%;pointer-events:none}
 
 .bulle{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:10px;
@@ -83,7 +83,7 @@ footer{color:var(--doux);font-size:12px;text-align:center;margin-top:8px;opacity
 .etat{color:var(--doux);font-size:13px;margin:0}
 .apparait{animation:apparait .3s ease}
 @keyframes apparait{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
-@media (max-width:560px){.qr{width:118px}.centre .desc{display:none}.pastille{font-size:10px;padding:1px 6px}.centre{padding:12px;gap:8px;border-radius:20px}.centre h2{font-size:16px}}
+@media (max-width:560px){.qr{width:112px}.centre .desc{display:none}.pastille{font-size:10px;padding:1px 6px}.centre{padding:12px;gap:8px;border-radius:20px}.centre h2{font-size:16px}}
 @media (prefers-reduced-motion:reduce){.bulle,.etoiles i{animation:none}}
 </style>
 </head>
@@ -99,8 +99,6 @@ footer{color:var(--doux);font-size:12px;text-align:center;margin-top:8px;opacity
   <footer>Les versions viennent directement des releases GitHub.</footer>
 </main>
 <script src="vendor/qrcode.js"></script>
-<script>/* toujours la dernière liste d'applis, jamais une copie gardée en cache */
-if (!window.APPLIS) document.write('<script src="applis.js?v=' + Date.now() + '"><\/script>');</script>
 <script>
 const echapper = (t) => String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const mo = (o) => (o / 1024 / 1024).toFixed(0) + ' Mo';
@@ -147,10 +145,11 @@ function qrSvg(texte) {
 const cercle = document.getElementById('cercle');
 const centre = document.getElementById('centre');
 const anneau = document.getElementById('anneau');
-const applis = window.APPLIS || [];
+let applis = [];
+let bulles = [];
 let choisie = null;
 
-const bulles = applis.map((a, i) => {
+function creerBulle(a, i) {
   const b = document.createElement('button');
   b.className = 'bulle';
   b.style.setProperty('--teinte', TEINTES[i % TEINTES.length]);
@@ -162,7 +161,7 @@ const bulles = applis.map((a, i) => {
   cercle.appendChild(b);
   versions[i] = chargerVersion(a).then((v) => { if (v.lien) b.querySelector('.point').classList.add('ok'); return v; });
   return b;
-});
+}
 
 function accueil() {
   centre.innerHTML = `<div class="accueil apparait"><img class="coeur" src="icones/nexus.png" alt=""><b>${applis.length} applis</b>Choisis une bulle<br>autour du cercle</div>`;
@@ -195,28 +194,46 @@ async function afficher(i) {
 function placer() {
   const W = cercle.clientWidth;
   const etroit = W < 520;
-  const H = Math.round(W * (etroit ? 1.58 : 1.02));
+  const H = Math.round(W * (etroit ? 1.58 : 0.92));
   cercle.style.height = H + 'px';
   let bw = 0, bh = 0;
   bulles.forEach((b) => { bw = Math.max(bw, b.offsetWidth); bh = Math.max(bh, b.offsetHeight); });
   const rx = W / 2 - bw / 2 - 6;
   const ry = H / 2 - bh / 2 - 12;
   const n = bulles.length;
-  bulles.forEach((b, i) => {
+  const pos = bulles.map((b, i) => {
     const ang = -Math.PI / 2 + (i * 2 * Math.PI) / n;
-    b.style.left = W / 2 + rx * Math.cos(ang) + 'px';
-    b.style.top = H / 2 + ry * Math.sin(ang) + 'px';
+    const p = { x: W / 2 + rx * Math.cos(ang), y: H / 2 + ry * Math.sin(ang) };
+    b.style.left = p.x + 'px';
+    b.style.top = p.y + 'px';
+    return p;
   });
   anneau.style.width = rx * 2 + 'px';
   anneau.style.height = ry * 2 + 'px';
   // la fiche du centre prend la place libre à l'intérieur du cercle
-  centre.style.width = Math.min(250, Math.max(150, 2 * rx - bw - 14)) + 'px';
+  // la fiche prend toute la largeur libre entre les bulles qui sont à sa hauteur
+  const demiH = Math.max(centre.offsetHeight / 2, 120);
+  let l = 250;
+  pos.forEach((p) => {
+    if (Math.abs(p.y - H / 2) < demiH + bh / 2) l = Math.min(l, 2 * (Math.abs(p.x - W / 2) - bw / 2) - 8);
+  });
+  centre.style.width = Math.max(140, l) + 'px';
 }
 
-accueil();
-placer();
-window.addEventListener('resize', placer);
-document.fonts && document.fonts.ready.then(placer);
+/* La liste des applis est dans applis.json : le site et l'appli Nexus lisent le même fichier. */
+(async () => {
+  try {
+    applis = window.APPLIS || await (await fetch('applis.json?v=' + Date.now(), { cache: 'no-store' })).json();
+  } catch (e) {
+    centre.innerHTML = '<p class="etat">Impossible de charger la liste des applis.</p>';
+    return;
+  }
+  bulles = applis.map(creerBulle);
+  accueil();
+  placer();
+  window.addEventListener('resize', placer);
+  document.fonts && document.fonts.ready.then(placer);
+})();
 </script>
 </body>
 </html>
