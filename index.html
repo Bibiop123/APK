@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Le Nexus</title>
-<link rel="icon" href="icones/la-lanterne.png">
+<link rel="icon" href="icones/nexus.png">
+<link rel="apple-touch-icon" href="icones/nexus.png">
 <style>
 /* ---------- Thèmes ---------- */
 :root{
@@ -21,7 +22,8 @@ html,body{margin:0;min-height:100%}
 body{background:var(--fond);background-attachment:fixed;color:var(--texte);
   font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;transition:color .3s;overflow-x:hidden}
 main{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:18px 10px 30px}
-h1{font-size:26px;margin:6px 0 2px;letter-spacing:.3px}
+h1{font-size:26px;margin:6px 0 2px;letter-spacing:.3px;display:flex;align-items:center;gap:10px}
+h1 .logo{width:44px;height:44px;border-radius:12px;box-shadow:0 0 18px rgba(143,180,255,.45)}
 .sous{color:var(--doux);margin:0 0 8px;font-size:14px;text-align:center}
 footer{color:var(--doux);font-size:12px;text-align:center;margin-top:8px;opacity:.8}
 
@@ -66,6 +68,8 @@ footer{color:var(--doux);font-size:12px;text-align:center;margin-top:8px;opacity
   padding:16px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 10px 40px rgba(0,0,0,.25)}
 .centre .accueil{color:var(--doux);font-size:14px;line-height:1.45}
+.centre .accueil .coeur{display:block;width:96px;height:96px;margin:0 auto 8px;border-radius:50%;animation:pulse 4s ease-in-out infinite}
+@keyframes pulse{50%{filter:brightness(1.25) drop-shadow(0 0 14px rgba(143,180,255,.6))}}
 .centre .accueil b{display:block;color:var(--texte);font-size:18px;margin-bottom:4px}
 .centre h2{margin:0;font-size:18px}
 .centre .desc{margin:-4px 0 0;color:var(--doux);font-size:13px}
@@ -86,7 +90,7 @@ footer{color:var(--doux);font-size:12px;text-align:center;margin-top:8px;opacity
 <body>
 <div class="etoiles" id="etoiles"></div>
 <main>
-  <h1>Le Nexus</h1>
+  <h1><img class="logo" src="icones/nexus.png" alt="">Le Nexus</h1>
   <p class="sous">Touche une bulle pour afficher son QR code</p>
   <div class="cercle" id="cercle">
     <div class="anneau" id="anneau"></div>
@@ -161,7 +165,7 @@ const bulles = applis.map((a, i) => {
 });
 
 function accueil() {
-  centre.innerHTML = `<div class="accueil apparait"><b>${applis.length} applis</b>Choisis une bulle<br>autour du cercle</div>`;
+  centre.innerHTML = `<div class="accueil apparait"><img class="coeur" src="icones/nexus.png" alt=""><b>${applis.length} applis</b>Choisis une bulle<br>autour du cercle</div>`;
 }
 
 async function afficher(i) {
